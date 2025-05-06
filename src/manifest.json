@@ -28,5 +28,5 @@
   ],
   // 权限申请
   // https://developer.chrome.com/docs/extensions/reference/permissions-list?hl=zh-cn
-  "permissions": []
+  "permissions": ["activeTab", "storage", "scripting"]
 }

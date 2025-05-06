@@ -3,11 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "tsup && gulp copyAll",
+    "build:css": "npx tailwindcss -i ./src/index.css -o ./src/output.css",
+    "build": "pnpm build:css && tsup && gulp copyAll",
     "copy": "gulp copyAll",
     "tailwind-init": "tailwindcss init -p"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.320",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "esbuild-postcss": "^0.0.4",
