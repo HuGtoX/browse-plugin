@@ -1,20 +1,22 @@
 {
-  "name": "extension",
+  "name": "@gixy/bit-craft-extension",
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build:css": "npx tailwindcss -i ./src/index.css -o ./src/output.css",
-    "build": "pnpm build:css && tsup && gulp copyAll",
-    "copy": "gulp copyAll",
-    "tailwind-init": "tailwindcss init -p"
+    "build:plugin": "gulp buildPlugins && gulp",
+    "build": "gulp",
+    "dev": "gulp dev",
+    "tsup": "tsup"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.320",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "esbuild-postcss": "^0.0.4",
+    "autoprefixer": "^10.4.21",
+    "esbuild": "^0.25.4",
     "gulp": "^5.0.0",
     "gulp-copy": "^5.0.0",
+    "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "tsup": "^8.4.0"
   },

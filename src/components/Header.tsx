@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 // 移除错误的导入语句，因为在浏览器扩展环境中，chrome 是全局对象，无需导入
 
 const HelloReact = () => {

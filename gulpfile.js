@@ -1,13 +1,34 @@
-const gulp = require('gulp');
-const copy = require('gulp-copy');
+const gulp = require("gulp");
+const copy = require("gulp-copy");
+const { build } = require("tsup");
 
-// 复制 src 目录下除 js 和 ts 之外的文件
-const copyOtherSrcFiles = () => {
-    return gulp.src(['src/**/*', '!src/**/*.{js,ts,tsx}'])
-        .pipe(copy('dist', { prefix: 1 }));
+const compilePlugins = async () => {
+  await build({
+    entry: ["esbuildPlugin/*.ts"],
+    outDir: "plugins",
+    format: ["esm"],
+  });
 };
 
-// 组合所有任务
-const copyAll = gulp.parallel(copyOtherSrcFiles);
+// 编译 ts
+const tsupCompile = async () => {
+  const tsupConfig = require("./tsup.config");
+  await build(tsupConfig);
+};
 
-exports.copyAll = copyAll;
+// 复制 src 目录下除 js 和 ts 之外的文件
+const copyOtherSrcFiles = async () => {
+  return gulp
+    .src(["src/**/*", "!src/**/*.{js,ts,tsx,css}"])
+    .pipe(copy("dist", { prefix: 1 }));
+};
+
+const runBuild = gulp.series(tsupCompile, copyOtherSrcFiles);
+
+exports.dev = () => {
+  gulp.watch("src/**/*", { ignoreInitial: false }, runBuild);
+};
+
+exports.buildPlugins = compilePlugins;
+
+exports.default = runBuild;
