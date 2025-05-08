@@ -1,8 +1,9 @@
 {
   "name": "@gixy/bit-craft-extension",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
+    "test": "tsc index.ts --moduleResolution nodenext --module nodenext && node index.js",
     "build:plugin": "gulp buildPlugins && gulp",
     "build": "gulp",
     "dev": "gulp dev",
@@ -10,6 +11,7 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.0.320",
+    "@types/node": "^22.15.15",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "autoprefixer": "^10.4.21",
@@ -21,6 +23,8 @@
     "tsup": "^8.4.0"
   },
   "dependencies": {
+    "jsdom": "^26.1.0",
+    "lodash-es": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "typescript": "^5.8.3"

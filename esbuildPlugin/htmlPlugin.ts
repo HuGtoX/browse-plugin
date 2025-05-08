@@ -1,15 +1,35 @@
 import esbuild from "esbuild";
+import { renderTemplate, collectEntrypoints, injectFiles } from "./utils";
+import type { HtmlPluginOptions } from "./utils";
+import { JSDOM } from "jsdom";
+
 // 定义一个 esbuild 插件
-const htmlPlugin = (): esbuild.Plugin => {
+const htmlPlugin = (options: HtmlPluginOptions): esbuild.Plugin => {
   return {
     name: "html-create-plugin",
     setup(build) {
-      build.onEnd((result) => {
+      build.onEnd(async (result) => {
         const startTime = Date.now();
+        const { templatePath, file, outputPath } = options;
+        const outdir = outputPath || build.initialOptions.outdir || "dist";
 
-        // All output files relevant for this html file
-        let collectedOutputFiles = result.outputFiles?.map((file) => file.path);
-        console.log("-- [ result.outputFiles ] --", collectedOutputFiles);
+        // 生成HTML模板
+        const templateContent = await renderTemplate(
+          templatePath,
+          options.define
+        );
+
+        const collectedOutputFiles = await collectEntrypoints(
+          options.entryPoints,
+          result.metafile
+        );
+        const dom = new JSDOM(templateContent);
+
+        await injectFiles(dom, collectedOutputFiles, outdir);
+
+        const finishTime = new Date(Date.now() - startTime).getMilliseconds();
+
+        console.log("-- [ finishTime ] --", finishTime + "ms");
       });
     },
   };

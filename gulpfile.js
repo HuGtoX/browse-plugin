@@ -4,16 +4,29 @@ const { build } = require("tsup");
 
 const compilePlugins = async () => {
   await build({
-    entry: ["esbuildPlugin/*.ts"],
+    entry: ["esbuildPlugin/htmlPlugin.ts"],
     outDir: "plugins",
     format: ["esm"],
+    clean: true,
+    // 避免tsup.config.js混入
+    config: false,
   });
 };
 
 // 编译 ts
 const tsupCompile = async () => {
   const tsupConfig = require("./tsup.config");
-  await build(tsupConfig);
+  const HTMLPlugin = require("./plugins/htmlPlugin.mjs");
+  console.log("-- [ HTMLPlugin ] --", HTMLPlugin.default);
+  await build({
+    ...tsupConfig,
+    esbuildPlugins: [
+      HTMLPlugin.default({
+        file: "index.html",
+        entryPoints: ["src/main.tsx"],
+      }),
+    ],
+  });
 };
 
 // 复制 src 目录下除 js 和 ts 之外的文件
