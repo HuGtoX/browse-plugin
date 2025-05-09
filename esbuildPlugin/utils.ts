@@ -1,6 +1,6 @@
 import esbuild from "esbuild";
 import { fileURLToPath } from "url";
-import { join, dirname, relative, parse } from "path";
+import path, { join, dirname, relative, parse } from "path";
 import { template } from "lodash-es";
 import { JSDOM } from "jsdom";
 import fs from "fs/promises";
@@ -69,16 +69,40 @@ async function collectEntrypoints(
   return filterEntryPoints;
 }
 
+function posixJoin(...paths: string[]): string {
+  const joined = join(...paths);
+  if (path.sep === "/") {
+    return joined;
+  }
+  return joined.split(path.sep).join(path.posix.sep);
+}
+
 async function injectFiles(
   dom: JSDOM,
   collectedOutputFiles: any[],
   outdir: string
 ) {
+  const document = dom.window.document;
   for (const outputFile of collectedOutputFiles) {
-    console.log("-- [ outputFile ] --", outputFile);
-    const ext = parse(outputFile.filepath).ext;
+    console.log("-- [ outputFile ] --", outputFile.path);
+    const ext = parse(outputFile.path).ext;
+
+    const targetPath = relative(outdir, outputFile.path);
+
+    if (ext === ".css") {
+      const linkTag = document.createElement("link");
+      linkTag.setAttribute("rel", "stylesheet");
+      linkTag.setAttribute("href", targetPath);
+      document.head.appendChild(linkTag);
+    }
+
+    if (ext === ".js") {
+      const scriptTag = document.createElement("script");
+      scriptTag.setAttribute("src", targetPath);
+      document.body.append(scriptTag);
+    }
   }
 }
 
-export { renderTemplate, collectEntrypoints, injectFiles };
+export { renderTemplate, collectEntrypoints, injectFiles, posixJoin };
 export type { HtmlPluginOptions };

@@ -17,11 +17,11 @@ const compilePlugins = async () => {
 const tsupCompile = async () => {
   const tsupConfig = require("./tsup.config");
   const HTMLPlugin = require("./plugins/htmlPlugin.mjs");
-  console.log("-- [ HTMLPlugin ] --", HTMLPlugin.default);
   await build({
     ...tsupConfig,
     esbuildPlugins: [
       HTMLPlugin.default({
+        outputPath: "dist/popup",
         file: "index.html",
         entryPoints: ["src/main.tsx"],
       }),
@@ -29,10 +29,9 @@ const tsupCompile = async () => {
   });
 };
 
-// 复制 src 目录下除 js 和 ts 之外的文件
 const copyOtherSrcFiles = async () => {
   return gulp
-    .src(["src/**/*", "!src/**/*.{js,ts,tsx,css}"])
+    .src(["src/icons", "src/manifest.json"])
     .pipe(copy("dist", { prefix: 1 }));
 };
 
