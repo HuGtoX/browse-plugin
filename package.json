@@ -19,10 +19,13 @@
     "gulp": "^5.0.0",
     "gulp-copy": "^5.0.0",
     "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.17",
     "tsup": "^8.4.0"
   },
   "dependencies": {
+    "@ant-design/icons": "5.x",
     "jsdom": "^26.1.0",
     "lodash-es": "^4.17.21",
     "react": "^19.1.0",

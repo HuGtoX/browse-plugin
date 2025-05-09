@@ -31,7 +31,7 @@ const tsupCompile = async () => {
 
 const copyOtherSrcFiles = async () => {
   return gulp
-    .src(["src/icons", "src/manifest.json"])
+    .src(["src/icons/*", "src/manifest.json"])
     .pipe(copy("dist", { prefix: 1 }));
 };
 
