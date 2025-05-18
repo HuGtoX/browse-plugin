@@ -1,8 +1,7 @@
-// import HTMLPlugin from "./plugins/htmlPlugin.js";
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/main.tsx", "src/js/*.ts"],
+  entry: ["src/main.tsx", "src/scripts/*.ts"],
   outDir: "dist", // 输出目录
   format: ["iife"], // 输出格式
   jsx: "react-jsx", // 支持 React 17+ 的 JSX 转换
@@ -17,5 +16,4 @@ export default defineConfig({
     "process.env.NODE_ENV": JSON.stringify("production"),
   },
   plugins: [],
-  // esbuildPlugins: [HTMLPlugin({})],
 });

@@ -73,6 +73,7 @@ async function injectFiles(dom, collectedOutputFiles, outdir) {
 
 // esbuildPlugin/htmlPlugin.ts
 import fs2 from "fs/promises";
+import * as path2 from "path";
 import { JSDOM } from "jsdom";
 var htmlPlugin = (options) => {
   return {
@@ -113,11 +114,12 @@ var htmlPlugin = (options) => {
             console.error(e);
           });
           const out = posixJoin(outdir, options.file);
+          await fs2.mkdir(path2.dirname(out), { recursive: true });
           await fs2.writeFile(out, dom.serialize());
           const finishTime = new Date(Date.now() - startTime).getMilliseconds();
           console.log(
             "\x1B[32m%s\x1B[0m",
-            "\u2705 [ htmlPlugin create success ] -- " + finishTime + "ms"
+            "\u2705 [ htmlPlugin create success ] after " + finishTime + "ms"
           );
         } catch (e) {
           console.log("-- [ e ] --", e);

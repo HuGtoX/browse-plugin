@@ -7,6 +7,7 @@ import {
 } from "./utils";
 import type { HtmlPluginOptions } from "./utils";
 import fs from "fs/promises";
+import * as path from 'path';
 import { JSDOM } from "jsdom";
 
 // 定义一个 esbuild 插件
@@ -63,6 +64,7 @@ const htmlPlugin = (options: HtmlPluginOptions): esbuild.Plugin => {
           });
 
           const out = posixJoin(outdir, options.file);
+          await fs.mkdir(path.dirname(out), { recursive: true });
           await fs.writeFile(out, dom.serialize());
 
           const finishTime = new Date(Date.now() - startTime).getMilliseconds();

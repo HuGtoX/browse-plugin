@@ -14,5 +14,5 @@
     "noEmit": true,
     "types": ["chrome"]
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts"]
 }
