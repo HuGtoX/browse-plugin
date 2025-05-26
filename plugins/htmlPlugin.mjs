@@ -76,53 +76,61 @@ import fs2 from "fs/promises";
 import * as path2 from "path";
 import { JSDOM } from "jsdom";
 var htmlPlugin = (options) => {
+  if (!Array.isArray(options)) {
+    throw new TypeError(
+      `htmlPlugin options \u5FC5\u987B\u4E3A\u6570\u7EC4\u7C7B\u578B\uFF0C\u5F53\u524D\u4F20\u5165\u7C7B\u578B\uFF1A${typeof options}`
+    );
+  }
   return {
     name: "html-create-plugin",
     setup(build) {
       build.onEnd(async (result) => {
         const startTime = Date.now();
-        const { templatePath, file, outputPath } = options;
         try {
-          const outdir = outputPath || build.initialOptions.outdir || "dist";
-          const templateContent = await renderTemplate(
-            templatePath,
-            options.define
-          );
-          const collectedEntrypoints = await collectEntrypoints(
-            options.entryPoints,
-            result.metafile
-          );
-          let collectedOutputFiles = [];
-          for (const entrypoint of collectedEntrypoints) {
-            if (!entrypoint) {
-              throw new Error(`Found no match for ${options.entryPoints}`);
+          for (let i = 0; i < options.length; i++) {
+            const { templatePath, define, outputPath, entryPoints, file } = options[i];
+            const outdir = outputPath || build.initialOptions.outdir || "dist";
+            const templateContent = await renderTemplate(templatePath, define);
+            const collectedEntrypoints = await collectEntrypoints(
+              entryPoints,
+              result.metafile
+            );
+            let collectedOutputFiles = [];
+            for (const entrypoint of collectedEntrypoints) {
+              if (!entrypoint) {
+                throw new Error(`Found no match for ${entryPoints}`);
+              }
+              const relatedOutputFiles = /* @__PURE__ */ new Map();
+              relatedOutputFiles.set(entrypoint.path, entrypoint);
+              if (entrypoint?.cssBundle) {
+                relatedOutputFiles.set(entrypoint.cssBundle, {
+                  path: entrypoint?.cssBundle
+                });
+              }
+              collectedOutputFiles = [
+                ...collectedOutputFiles,
+                ...relatedOutputFiles.values()
+              ];
             }
-            const relatedOutputFiles = /* @__PURE__ */ new Map();
-            relatedOutputFiles.set(entrypoint.path, entrypoint);
-            if (entrypoint?.cssBundle) {
-              relatedOutputFiles.set(entrypoint.cssBundle, {
-                path: entrypoint?.cssBundle
-              });
-            }
-            collectedOutputFiles = [
-              ...collectedOutputFiles,
-              ...relatedOutputFiles.values()
-            ];
+            const dom = new JSDOM(templateContent);
+            await injectFiles(dom, collectedOutputFiles, outdir).catch((e) => {
+              console.error(e);
+            });
+            const out = posixJoin(outdir, file);
+            await fs2.mkdir(path2.dirname(out), { recursive: true });
+            await fs2.writeFile(out, dom.serialize());
+            const finishTime = new Date(
+              Date.now() - startTime
+            ).getMilliseconds();
+            console.log(
+              "\x1B[32m%s\x1B[0m",
+              "\u2705 [ htmlPlugin create success ] after " + finishTime + "ms"
+            );
           }
-          const dom = new JSDOM(templateContent);
-          await injectFiles(dom, collectedOutputFiles, outdir).catch((e) => {
-            console.error(e);
-          });
-          const out = posixJoin(outdir, options.file);
-          await fs2.mkdir(path2.dirname(out), { recursive: true });
-          await fs2.writeFile(out, dom.serialize());
-          const finishTime = new Date(Date.now() - startTime).getMilliseconds();
-          console.log(
-            "\x1B[32m%s\x1B[0m",
-            "\u2705 [ htmlPlugin create success ] after " + finishTime + "ms"
-          );
         } catch (e) {
-          console.log("-- [ e ] --", e);
+          throw new Error(
+            `\x1B[31m%s\x1B[0m", "\u274C [ htmlPlugin \u6784\u5EFA\u5931\u8D25 ] ${e}`
+          );
         }
       });
     }

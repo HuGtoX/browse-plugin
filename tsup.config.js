@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/main.tsx", "src/scripts/*.ts"],
+  entry: ["src/popup/main.tsx", "src/options/main.tsx", "src/scripts/*.ts"],
   outDir: "dist", // 输出目录
   format: ["iife"], // 输出格式
   jsx: "react-jsx", // 支持 React 17+ 的 JSX 转换

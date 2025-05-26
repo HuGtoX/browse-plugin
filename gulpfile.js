@@ -15,18 +15,30 @@ const compilePlugins = async () => {
 
 // 编译 ts
 const tsupCompile = async () => {
-  const tsupConfig = require("./tsup.config");
-  const HTMLPlugin = require("./plugins/htmlPlugin.mjs");
-  await build({
-    ...tsupConfig,
-    esbuildPlugins: [
-      HTMLPlugin.default({
-        outputPath: "dist/popup",
-        file: "index.html",
-        entryPoints: ["src/main.tsx"],
-      }),
-    ],
-  });
+  try {
+    const tsupConfig = require("./tsup.config.js");
+    const HTMLPlugin = require("./plugins/htmlPlugin.mjs");
+    await build({
+      ...tsupConfig,
+      esbuildPlugins: [
+        HTMLPlugin.default([
+          {
+            outputPath: "dist/popup",
+            file: "index.html",
+            entryPoints: ["src/popup/main.tsx"],
+          },
+          {
+            outputPath: "dist/options",
+            file: "index.html",
+            entryPoints: ["src/options/main.tsx"],
+          },
+        ]),
+      ],
+    });
+  } catch (e) {
+    console.error("\x1b[31m%s\x1b[0m", "❌ [ tsup 编译失败 ]", e);
+    throw e; // 抛出错误，终止 gulp 任务
+  }
 };
 
 const copyOtherSrcFiles = async () => {
@@ -42,5 +54,4 @@ exports.dev = () => {
 };
 
 exports.buildPlugins = compilePlugins;
-
 exports.default = runBuild;
