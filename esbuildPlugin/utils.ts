@@ -10,10 +10,11 @@ const __dirname = dirname(__filename);
 
 interface HtmlPluginOptions {
   templatePath?: string; // 模板文件路径
-  outputPath?: string; // 输出文件路径
+  outDir?: string; // 输出文件路径
   entryPoints: string[];
   file: string; // 输出文件名
   define?: Record<string, string>;
+  assets?: string[]; // 用于指定额外需要注入的静态资源（CSS/JS）
 }
 
 const defaultHtmlTemplate = `
@@ -30,7 +31,7 @@ const defaultHtmlTemplate = `
 
 async function renderTemplate(
   templatePath?: string,
-  define?: Record<string, string>
+  define?: Record<string, string>,
 ) {
   if (templatePath) {
     const filePath = join(__dirname, templatePath);
@@ -53,7 +54,7 @@ async function renderTemplate(
 // 收集入口文件
 async function collectEntrypoints(
   entryPoints: HtmlPluginOptions["entryPoints"],
-  metafile?: esbuild.Metafile
+  metafile?: esbuild.Metafile,
 ) {
   const filterEntryPoints = Object.entries(metafile?.outputs || {})
     .filter(([, value]) => {
@@ -80,11 +81,10 @@ function posixJoin(...paths: string[]): string {
 async function injectFiles(
   dom: JSDOM,
   collectedOutputFiles: any[],
-  outdir: string
+  outdir: string,
 ) {
   const document = dom.window.document;
   for (const outputFile of collectedOutputFiles) {
-    console.log("-- [ outputFile ] --", outputFile.path);
     const ext = parse(outputFile.path).ext;
 
     const targetPath = relative(outdir, outputFile.path);
@@ -104,5 +104,31 @@ async function injectFiles(
   }
 }
 
-export { renderTemplate, collectEntrypoints, injectFiles, posixJoin };
+async function injectAssets(dom: JSDOM, assets: string[], outdir: string) {
+  const { window } = dom;
+  const document = window.document;
+
+  for (const asset of assets) {
+    const ext = path.extname(asset).toLowerCase();
+
+    if (ext === ".css") {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = asset.startsWith("http") ? asset : path.posix.relative(outdir, asset);
+      document.head.appendChild(link);
+    } else if (ext === ".js") {
+      const script = document.createElement("script");
+      script.src = asset.startsWith("http") ? asset : path.posix.relative(outdir, asset);
+      document.body.appendChild(script);
+    }
+  }
+}
+
+export {
+  renderTemplate,
+  collectEntrypoints,
+  injectFiles,
+  injectAssets,
+  posixJoin,
+};
 export type { HtmlPluginOptions };

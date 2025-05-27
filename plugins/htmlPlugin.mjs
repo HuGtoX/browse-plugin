@@ -54,7 +54,6 @@ function posixJoin(...paths) {
 async function injectFiles(dom, collectedOutputFiles, outdir) {
   const document = dom.window.document;
   for (const outputFile of collectedOutputFiles) {
-    console.log("-- [ outputFile ] --", outputFile.path);
     const ext = parse(outputFile.path).ext;
     const targetPath = relative(outdir, outputFile.path);
     if (ext === ".css") {
@@ -67,6 +66,23 @@ async function injectFiles(dom, collectedOutputFiles, outdir) {
       const scriptTag = document.createElement("script");
       scriptTag.setAttribute("src", targetPath);
       document.body.append(scriptTag);
+    }
+  }
+}
+async function injectAssets(dom, assets, outdir) {
+  const { window } = dom;
+  const document = window.document;
+  for (const asset of assets) {
+    const ext = path.extname(asset).toLowerCase();
+    if (ext === ".css") {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = asset.startsWith("http") ? asset : path.posix.relative(outdir, asset);
+      document.head.appendChild(link);
+    } else if (ext === ".js") {
+      const script = document.createElement("script");
+      script.src = asset.startsWith("http") ? asset : path.posix.relative(outdir, asset);
+      document.body.appendChild(script);
     }
   }
 }
@@ -88,8 +104,15 @@ var htmlPlugin = (options) => {
         const startTime = Date.now();
         try {
           for (let i = 0; i < options.length; i++) {
-            const { templatePath, define, outputPath, entryPoints, file } = options[i];
-            const outdir = outputPath || build.initialOptions.outdir || "dist";
+            const {
+              templatePath,
+              define,
+              outDir,
+              entryPoints,
+              file,
+              assets
+            } = options[i];
+            const outdir = outDir || build.initialOptions.outdir || "dist";
             const templateContent = await renderTemplate(templatePath, define);
             const collectedEntrypoints = await collectEntrypoints(
               entryPoints,
@@ -116,6 +139,9 @@ var htmlPlugin = (options) => {
             await injectFiles(dom, collectedOutputFiles, outdir).catch((e) => {
               console.error(e);
             });
+            if (Array.isArray(assets) && assets.length > 0) {
+              await injectAssets(dom, assets, outdir);
+            }
             const out = posixJoin(outdir, file);
             await fs2.mkdir(path2.dirname(out), { recursive: true });
             await fs2.writeFile(out, dom.serialize());
@@ -128,9 +154,7 @@ var htmlPlugin = (options) => {
             );
           }
         } catch (e) {
-          throw new Error(
-            `\x1B[31m%s\x1B[0m", "\u274C [ htmlPlugin \u6784\u5EFA\u5931\u8D25 ] ${e}`
-          );
+          throw new Error(`\x1B[31m\u274C [ htmlPlugin \u6784\u5EFA\u5931\u8D25 ]\x1B[0m ${e}`);
         }
       });
     }

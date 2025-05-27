@@ -1,3 +1,4 @@
+const { assert } = require("console");
 const gulp = require("gulp");
 const copy = require("gulp-copy");
 const { build } = require("tsup");
@@ -13,8 +14,7 @@ const compilePlugins = async () => {
   });
 };
 
-// 编译 ts
-const tsupCompile = async () => {
+const mainCompile = async () => {
   try {
     const tsupConfig = require("./tsup.config.js");
     const HTMLPlugin = require("./plugins/htmlPlugin.mjs");
@@ -31,6 +31,9 @@ const tsupCompile = async () => {
             outputPath: "dist/options",
             file: "index.html",
             entryPoints: ["src/options/main.tsx"],
+            assets: [
+              "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css", // 将被注入到 head 中
+            ],
           },
         ]),
       ],
@@ -41,13 +44,15 @@ const tsupCompile = async () => {
   }
 };
 
+
 const copyOtherSrcFiles = async () => {
   return gulp
     .src(["src/icons/*", "src/manifest.json"])
     .pipe(copy("dist", { prefix: 1 }));
 };
 
-const runBuild = gulp.series(tsupCompile, copyOtherSrcFiles);
+
+const runBuild = gulp.series(mainCompile, copyOtherSrcFiles);
 
 exports.dev = () => {
   gulp.watch("src/**/*", { ignoreInitial: false }, runBuild);

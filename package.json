@@ -4,12 +4,13 @@
   "version": "0.0.1",
   "scripts": {
     "test": "tsc index.ts --moduleResolution nodenext --module nodenext && node index.js",
-    "build:plugin": "gulp buildPlugins && gulp",
+    "build:plugin": "gulp buildPlugins",
     "build": "gulp",
     "dev": "gulp dev",
     "tsup": "tsup"
   },
   "devDependencies": {
+    "@babel/core": "^7.27.1",
     "@types/chrome": "^0.0.320",
     "@types/node": "^22.15.15",
     "@types/react": "^19.1.2",

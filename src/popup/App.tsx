@@ -1,6 +1,7 @@
 import ToggleSetting from "../components/ToggleSetting";
 import { useBackTop, useRemoveAds } from "../hooks";
 import { SettingOutlined } from "@ant-design/icons";
+import React from "react";
 
 const HelloReact = () => {
   const { backToTopEnabled, handleBackToTopToggle } = useBackTop();

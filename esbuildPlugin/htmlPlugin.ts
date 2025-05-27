@@ -4,6 +4,7 @@ import {
   collectEntrypoints,
   injectFiles,
   posixJoin,
+  injectAssets,
 } from "./utils";
 import type { HtmlPluginOptions } from "./utils";
 import fs from "fs/promises";
@@ -24,10 +25,16 @@ const htmlPlugin = (options: HtmlPluginOptions[]): esbuild.Plugin => {
         const startTime = Date.now();
         try {
           for (let i = 0; i < options.length; i++) {
-            const { templatePath, define, outputPath, entryPoints, file } =
-              options[i];
+            const {
+              templatePath,
+              define,
+              outDir,
+              entryPoints,
+              file,
+              assets,
+            } = options[i];
             // 输出目录
-            const outdir = outputPath || build.initialOptions.outdir || "dist";
+            const outdir = outDir || build.initialOptions.outdir || "dist";
 
             // 生成HTML模板
             const templateContent = await renderTemplate(templatePath, define);
@@ -67,6 +74,11 @@ const htmlPlugin = (options: HtmlPluginOptions[]): esbuild.Plugin => {
               console.error(e);
             });
 
+            // 如果有额外的 assets，注入它们
+            if (Array.isArray(assets) && assets.length > 0) {
+              await injectAssets(dom, assets, outdir);
+            }
+
             const out = posixJoin(outdir, file);
             await fs.mkdir(path.dirname(out), { recursive: true });
             await fs.writeFile(out, dom.serialize());
@@ -81,9 +93,7 @@ const htmlPlugin = (options: HtmlPluginOptions[]): esbuild.Plugin => {
             );
           }
         } catch (e) {
-          throw new Error(
-            `\x1b[31m%s\x1b[0m", "❌ [ htmlPlugin 构建失败 ] ${e}`,
-          );
+          throw new Error(`\x1b[31m❌ [ htmlPlugin 构建失败 ]\x1b[0m ${e}`);
         }
       });
     },
