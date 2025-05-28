@@ -23,12 +23,12 @@ const mainCompile = async () => {
       esbuildPlugins: [
         HTMLPlugin.default([
           {
-            outputPath: "dist/popup",
+            outDir: "dist/popup",
             file: "index.html",
             entryPoints: ["src/popup/main.tsx"],
           },
           {
-            outputPath: "dist/options",
+            outDir: "dist/options",
             file: "index.html",
             entryPoints: ["src/options/main.tsx"],
             assets: [
