@@ -1,4 +1,4 @@
-function parseMetadata(scriptContent: string) {
+export function parseMetadata(scriptContent: string) {
   const metadata: Record<string, any> = {};
   const metaRegex = /\/\/\s*@(\S+)\s*(.*)/g;
   let match;
@@ -12,7 +12,7 @@ function parseMetadata(scriptContent: string) {
 }
 
 // 弹出安装对话框
-function showInstallDialog(metadata:Record<string, any>) {
+export function showInstallDialog(metadata:Record<string, any>) {
   const permissions = metadata.grant || [];
   const confirmed = confirm(
     `安装脚本 "${metadata.name[0]}"?\n` +
@@ -24,7 +24,7 @@ function showInstallDialog(metadata:Record<string, any>) {
 
 
 // 生成唯一ID并保存脚本
-function saveScript(scriptContent:string, metadata:Record<string, any>) {
+export function saveScript(scriptContent:string, metadata:Record<string, any>) {
     const scriptId = 'script_' + Date.now();
     const scriptData = {
       id: scriptId,
@@ -38,6 +38,15 @@ function saveScript(scriptContent:string, metadata:Record<string, any>) {
       scripts.push(scriptData);
       chrome.storage.local.set({ scripts }, () => {
         console.log('脚本已保存');
+      });
+    });
+  }
+
+  // 获取所有已保存的脚本
+  export function getScripts() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get('scripts', (result) => {
+        resolve(result.scripts || []);
       });
     });
   }
