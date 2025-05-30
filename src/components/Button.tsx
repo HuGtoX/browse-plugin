@@ -63,7 +63,7 @@ const Button: React.FC<ButtonProps> = ({
         return "px-2 py-1 text-xs rounded-md";
       case "middle":
       default:
-        return "px-4 py-2 text-sm rounded-md";
+        return "px-3 py-2 text-sm rounded-md";
     }
   };
 

@@ -1,29 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainHeader from "../components/MainHeader";
 import AddScripts from "./components/AddScripts";
 import ToggleSwitch from "../components/ToggleSwitch";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
 import Popconfirm from "../components/PopConfirm";
+import { getScripts, updateScript, deleteScript } from "./utils";
+import { ScriptConfig } from "./utils/types";
+import message  from "../components/Message";
 
 export default function Scripts() {
-  const [scripts, setScripts] = useState([
-    { id: 1, name: "广告拦截", enabled: true },
-    { id: 2, name: "夜间模式", enabled: false },
-    { id: 3, name: "自动填充", enabled: true },
-  ]);
+  const [scripts, setScripts] = useState<ScriptConfig[]>([]);
 
-  const toggleScript = (id: number) => {
-    setScripts((prev) =>
-      prev.map((script) =>
-        script.id === id ? { ...script, enabled: !script.enabled } : script,
-      ),
-    );
+  const deleteScriptHandle = async (id: number) => {
+    await deleteScript(id);
+    getScriptList();
   };
 
-  const deleteScript = (id: number) => {
-    setScripts((prev) => prev.filter((script) => script.id !== id));
+  const getScriptList = async () => {
+    const data = await getScripts();
+    console.log('-- [ data ] --', data);
+    setScripts(data);
   };
+
+  const updateScriptHandle = async (script: ScriptConfig) => {
+    const newScript = {
+      ...script,
+      enabled: !script.enabled,
+    };
+    await updateScript(script.id, newScript);
+    getScriptList()
+  };
+
+  useEffect(() => {
+    getScriptList();
+  }, []);
 
   return (
     <div className="mx-auto max-w-3xl overflow-hidden rounded-lg bg-white shadow-md">
@@ -40,39 +51,35 @@ export default function Scripts() {
       {/* Script List */}
       <div className="divide-y divide-gray-200">
         {scripts.map((script) => (
-          <div
-            key={script.id}
-            className="flex items-center justify-between p-4"
-          >
-            <div className="flex items-center">
-              <Icon
-                icon="fa-file-code"
-                className="mr-4 text-xl text-blue-500"
-              ></Icon>
+          <div key={script.id} className="flex justify-between p-4">
+            <div className="flex max-w-[520px] items-center">
+              <Icon icon="file-code" className="mr-5 text-xl text-blue-500" />
               <div>
                 <h3 className="text-sm font-medium text-gray-900">
                   {script.name}
                 </h3>
-                <p className="text-xs text-gray-500">自定义脚本</p>
+                <p className="text-xs text-gray-500">{script.description}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <ToggleSwitch
-                checked={script.enabled}
-                onChange={() => toggleScript(script.id)}
-              />
+            <div className="flex items-center">
+              <div className="px-4">
+                <ToggleSwitch
+                  checked={script.enabled}
+                  onChange={() => updateScriptHandle(script)}
+                />
+              </div>
 
               <Button
                 text
                 type="primary"
                 icon={<i className="fas fa-edit"></i>}
-                onClick={() => deleteScript(script.id)}
-              ></Button>
+                onClick={() => message.success('提交成功！')}
+              />
 
               <Popconfirm
                 title="确定要删除吗？"
                 content="删除后无法恢复，请谨慎操作"
-                onConfirm={() => deleteScript(script.id)}
+                onConfirm={() => deleteScriptHandle(script.id)}
                 onCancel={() => console.log("取消")}
                 okText="删除"
                 cancelText="取消"
@@ -82,7 +89,7 @@ export default function Scripts() {
                   text
                   type="danger"
                   icon={<i className="fas fa-trash"></i>}
-                ></Button>
+                />
               </Popconfirm>
             </div>
           </div>

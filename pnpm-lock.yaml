@@ -11,6 +11,9 @@ importers:
       '@ant-design/icons':
         specifier: 5.x
         version: 5.6.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@tailwindcss/line-clamp':
+        specifier: ^0.4.4
+        version: 0.4.4(tailwindcss@3.4.17)
       '@types/jquery':
         specifier: ^3.5.32
         version: 3.5.32
@@ -496,6 +499,11 @@ packages:
     resolution: {integrity: sha512-ECyOuDeH3C1I8jH2MK1RtBJW+YPMvSfT0a5NN0nHfQYnDSJ6tUiZH3gzwVP5/Kfh/+Tt7tpWVF9LXNTnhTJ3kA==}
     cpu: [x64]
     os: [win32]
+
+  '@tailwindcss/line-clamp@0.4.4':
+    resolution: {integrity: sha512-5U6SY5z8N42VtrCrKlsTAA35gy2VSyYtHWCsg1H87NU1SXnEfekTVlrga9fzUDrrHcGi2Lb5KenUWb4lRQT5/g==}
+    peerDependencies:
+      tailwindcss: '>=2.0.0 || >=3.0.0 || >=3.0.0-alpha.1'
 
   '@types/chrome@0.0.320':
     resolution: {integrity: sha512-LD0O6hqayM4/InMUB2fOGSh7lFkUlusa40mk6iUAxs0RHfvRYjjsDoRGsDh2DEJWP4Ckccf00FVhkhDHHIqy7g==}
@@ -2089,6 +2097,10 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.40.1':
     optional: true
+
+  '@tailwindcss/line-clamp@0.4.4(tailwindcss@3.4.17)':
+    dependencies:
+      tailwindcss: 3.4.17
 
   '@types/chrome@0.0.320':
     dependencies:

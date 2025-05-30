@@ -1,23 +1,17 @@
 import React, { useState } from "react";
 import Modal from "../../components/Modal";
-import { parseMetadata, saveScript, getScripts } from "../utils";
-import { useEffect } from "react";
+import { parseMetadata, saveScript } from "../utils";
+import message from "../../components/Message";
 
 export default function AddScripts() {
   const [showAddScriptModal, setShowAddScriptModal] = useState(false);
   const [newScriptName, setNewScriptName] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      const data = await getScripts();
-      console.log("data", data);
-    })();
-  }, []);
-
   const handleSave = () => {
     const paseData = parseMetadata(newScriptName);
     saveScript(newScriptName, paseData);
-    console.log("保存脚本", paseData);
+    message.success('保存成功！')
+    setShowAddScriptModal(false)
   };
 
   return (

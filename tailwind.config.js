@@ -11,5 +11,11 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    {
+      "@tailwindcss/line-clamp": {}, // 👈 启用 line-clamp 插件
+      autoprefixer: {},
+      "postcss-preset-env": {},
+    },
+  ],
 };

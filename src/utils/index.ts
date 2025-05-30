@@ -14,9 +14,12 @@ function addStyle(css: string): void {
 }
 
 function injectScript(code: string, scriptId: string) {
-  chrome.tabs.executeScript(
-    {
-      code: `(function() {
+  console.log("-- [ scriptId ] --", scriptId);
+
+  try {
+    chrome.tabs.executeScript(
+      {
+        code: `(function() {
       ${code}
       // 标记脚本已执行，避免重复注入
       window._tmInjected = window._tmInjected || [];
@@ -24,13 +27,16 @@ function injectScript(code: string, scriptId: string) {
         window._tmInjected.push('${scriptId}');
       }
     })();`,
-    },
-    (result) => {
-      if (chrome.runtime.lastError) {
-        console.error("注入失败:", chrome.runtime.lastError);
-      }
-    },
-  );
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.error("注入失败:", chrome.runtime.lastError);
+        }
+      },
+    );
+  } catch (e) {
+    console.log("Error: env: injectScript " + e);
+  }
 }
 
 // 检查URL是否匹配 @match/@include 规则

@@ -15,23 +15,23 @@
     "default_popup": "popup/index.html",
     "default_title": "bitCraft-plugin"
   },
-   "options_ui": {
+  "options_ui": {
     "page": "options/index.html",
     "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "worker.js"
   },
   // 需要直接注入页面的JS
   "content_scripts": [
     {
-      // "<all_urls>" 表示匹配所有地址
       "matches": ["<all_urls>"],
       "js": ["scripts/global.js"],
       "run_at": "document_start"
     },
     {
-      // "<all_urls>" 表示匹配所有地址
       "matches": ["<all_urls>"],
       "js": [
-        "scripts/wxReader.js",
         "scripts/scrollTop.js",
         "scripts/removeAds.js"
       ],
@@ -40,5 +40,5 @@
   ],
   // 权限申请
   // https://developer.chrome.com/docs/extensions/reference/permissions-list?hl=zh-cn
-  "permissions": ["activeTab", "storage", "scripting"]
+  "permissions": ["activeTab", "storage", "scripting", "webNavigation"]
 }

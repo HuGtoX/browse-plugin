@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.x",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@types/jquery": "^3.5.32",
     "jquery": "^3.7.1",
     "jsdom": "^26.1.0",
