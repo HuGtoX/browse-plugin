@@ -31,14 +31,11 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": [
-        "scripts/scrollTop.js",
-        "scripts/removeAds.js"
-      ],
+      "js": ["scripts/scrollTop.js", "scripts/removeAds.js"],
       "run_at": "document_start"
     }
   ],
-  // 权限申请
+  "host_permissions": ["http://*/*", "https://*/*"],
   // https://developer.chrome.com/docs/extensions/reference/permissions-list?hl=zh-cn
   "permissions": ["activeTab", "storage", "scripting", "webNavigation"]
 }
