@@ -13,34 +13,36 @@ function addStyle(css: string): void {
   }
 }
 
-async function getTabId()  {
+async function getTabId() {
   // 使用 chrome.tabs.query 获取当前激活的标签页
   let queryOptions = { active: true };
-    // `tab` will either be a `tabs.Tab` instance or `undefined`.
-    let tab = await chrome.tabs.query(queryOptions);
+  let tab = await chrome.tabs.query?.(queryOptions);
 
-    console.log('-- [ tab ] --', tab);
-    return tab[0]?.id ? tab[0].id : undefined;
+  return tab[0]?.id ? tab[0].id : undefined;
+}
+
+function excutedCallback(code: any, tabId: any) {
+  chrome.tabs.sendMessage(tabId, { action: "injectScript", code });
 }
 
 async function injectScript(code: string, scriptId: string) {
   const tabId = await getTabId();
-  console.log('-- [ tabId ] --', tabId);
+
   if (!tabId) return;
+
   try {
-    chrome.scripting
-      .executeScript({
-        target: { tabId },
-        func: () => `(function() {
-        ${code}
-        // 标记脚本已执行，避免重复注入
-        window._tmInjected = window._tmInjected || [];
-        if (!window._tmInjected.includes('${scriptId}')) {
-          window._tmInjected.push('${scriptId}');
-        }
-        })();`,
-      })
-      .then(() => console.log("injected a function"));
+    excutedCallback(code, tabId);
+    // chrome.scripting.executeScript(
+    //   {
+    //     target: { tabId },
+    //     func: (code) => code,
+    //     args: [code],
+    //   },
+    //   (result) => {
+    //     console.log("injected a function", result);
+    //     excutedCallback(code, tabId);
+    //   },
+    // );
   } catch (e) {
     console.log("Error: env: injectScript " + e);
   }
@@ -59,4 +61,4 @@ function isUrlMatched(url: string, patterns: string[]) {
   });
 }
 
-export { addStyle, injectScript, isUrlMatched };
+export { addStyle, injectScript, isUrlMatched, getTabId };

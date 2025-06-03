@@ -47,7 +47,7 @@ const mainCompile = async () => {
 
 const copyOtherSrcFiles = async () => {
   return gulp
-    .src(["src/icons/*", "src/manifest.json"])
+    .src(["src/icons/*", "src/manifest.json","src/sandbox.html"])
     .pipe(copy("dist", { prefix: 1 }));
 };
 

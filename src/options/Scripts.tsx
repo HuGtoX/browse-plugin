@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import MainHeader from "../components/MainHeader";
 import AddScripts from "./components/AddScripts";
+import EditScript from "./components/EditScript";
 import ToggleSwitch from "../components/ToggleSwitch";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
 import Popconfirm from "../components/PopConfirm";
 import { getScripts, updateScript, deleteScript } from "./utils";
 import { ScriptConfig } from "./utils/types";
-import message  from "../components/Message";
 
 export default function Scripts() {
   const [scripts, setScripts] = useState<ScriptConfig[]>([]);
@@ -19,7 +19,7 @@ export default function Scripts() {
 
   const getScriptList = async () => {
     const data = await getScripts();
-    console.log('-- [ data ] --', data);
+    console.log("-- [ data ] --", data);
     setScripts(data);
   };
 
@@ -29,7 +29,7 @@ export default function Scripts() {
       enabled: !script.enabled,
     };
     await updateScript(script.id, newScript);
-    getScriptList()
+    getScriptList();
   };
 
   useEffect(() => {
@@ -69,12 +69,7 @@ export default function Scripts() {
                 />
               </div>
 
-              <Button
-                text
-                type="primary"
-                icon={<i className="fas fa-edit"></i>}
-                onClick={() => message.success('提交成功！')}
-              />
+              <EditScript scriptData={script.code} scriptId={script.id} />
 
               <Popconfirm
                 title="确定要删除吗？"

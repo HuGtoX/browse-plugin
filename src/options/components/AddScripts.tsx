@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Modal from "../../components/Modal";
-import { parseMetadata, saveScript } from "../utils";
+import { saveScript } from "../utils";
 import message from "../../components/Message";
 
 export default function AddScripts() {
@@ -8,10 +8,9 @@ export default function AddScripts() {
   const [newScriptName, setNewScriptName] = useState("");
 
   const handleSave = () => {
-    const paseData = parseMetadata(newScriptName);
-    saveScript(newScriptName, paseData);
-    message.success('保存成功！')
-    setShowAddScriptModal(false)
+    saveScript(newScriptName);
+    message.success("保存成功！");
+    setShowAddScriptModal(false);
   };
 
   return (

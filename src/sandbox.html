@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      eval('console.log("sandbox")');
+      // 监听主程序传递的消息
+      window.addEventListener("message", (event) => {
+        console.log("-- [ event ] --", event);
+        if (event.source !== window.parent) return; // 确保消息来自父窗口
+
+        const { code, callbackKey } = event.data;
+        let result;
+
+        try {
+          // 在沙盒中执行字符串代码（允许eval）
+          result = eval(code); // 危险操作仅限沙盒内执行！
+        } catch (error) {
+          result = `执行错误：${error.message}`;
+        }
+
+        // 返回结果给主程序
+        window.parent.postMessage({ callbackKey, result }, event.origin);
+      });
+    </script>
+  </head>
+  <body></body>
+</html>

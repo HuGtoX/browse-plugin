@@ -2,6 +2,11 @@ import { isUrlMatched, injectScript } from "./utils";
 
 chrome.webNavigation.onCompleted.addListener((details) => {
   const url = details.url;
+
+  // chrome.tabs.create({
+  //   url: "sandbox.html",
+  // });
+
   chrome.storage.local.get("scripts", (result) => {
     const scripts = result.scripts || [];
     scripts.forEach((script: Record<string, any>) => {

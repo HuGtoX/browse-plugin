@@ -22,6 +22,11 @@
   "background": {
     "service_worker": "worker.js"
   },
+  "sandbox": {
+    "pages": ["sandbox.html"], // 沙盒页面路径
+    "scripts": true,           // 允许沙盒内运行脚本（包括eval）
+    "allow-modals": true       // 根据需要添加其他沙盒权限
+  },
   // 需要直接注入页面的JS
   "content_scripts": [
     {

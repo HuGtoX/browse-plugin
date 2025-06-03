@@ -27,9 +27,9 @@ export function showInstallDialog(metadata: Record<string, any>) {
 // 生成唯一ID并保存脚本
 export function saveScript(
   scriptContent: string,
-  metadata: Record<string, any>,
 ) {
   const scriptId = "script_" + Date.now();
+  const metadata = parseMetadata(scriptContent);
   const scriptData = {
     id: scriptId,
     code: scriptContent,
@@ -49,13 +49,21 @@ export function saveScript(
 // 根据脚本ID更新脚本文件
 export function updateScript(
   scriptId: number,
-  scriptData: any,
+  scriptContent: any,
 ) {
   return new Promise<void>((resolve, reject) => {
     // 参数校验
-    if (!scriptId || !scriptData) {
-      return reject(new Error("scriptId 和 scriptData 不能为空"));
+    if (!scriptId || !scriptContent) {
+      return reject(new Error("scriptId 和 scriptContent 不能为空"));
     }
+
+    const metadata = parseMetadata(scriptContent);
+    const scriptData = {
+      id: scriptId,
+      code: scriptContent,
+      enabled: true,
+      ...metadata, // 包含 name, match, grant 等元数据
+    };
 
     chrome.storage.local.get("scripts", (result) => {
       if (chrome.runtime.lastError) {
