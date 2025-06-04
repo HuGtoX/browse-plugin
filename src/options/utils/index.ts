@@ -25,9 +25,7 @@ export function showInstallDialog(metadata: Record<string, any>) {
 }
 
 // 生成唯一ID并保存脚本
-export function saveScript(
-  scriptContent: string,
-) {
+export async function saveScript(scriptContent: string) {
   const scriptId = "script_" + Date.now();
   const metadata = parseMetadata(scriptContent);
   const scriptData = {
@@ -37,58 +35,53 @@ export function saveScript(
     ...metadata, // 包含 name, match, grant 等元数据
   };
 
-  chrome.storage.local.get("scripts", (result) => {
-    const scripts = result.scripts || [];
-    scripts.push(scriptData);
-    chrome.storage.local.set({ scripts }, () => {
-      console.log("脚本已保存");
-    });
-  });
+  const result = await chrome.storage.local.get("scripts");
+  const scripts = result.scripts || [];
+  scripts.push(scriptData);
+  return chrome.storage.local.set({ scripts });
 }
 
 // 根据脚本ID更新脚本文件
-export function updateScript(
+export async function updateScript(
   scriptId: number,
   scriptContent: any,
+  enabled: boolean = true,
 ) {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>(async (resolve, reject) => {
     // 参数校验
     if (!scriptId || !scriptContent) {
       return reject(new Error("scriptId 和 scriptContent 不能为空"));
     }
 
     const metadata = parseMetadata(scriptContent);
+
     const scriptData = {
       id: scriptId,
       code: scriptContent,
-      enabled: true,
+      enabled: enabled,
       ...metadata, // 包含 name, match, grant 等元数据
     };
 
-    chrome.storage.local.get("scripts", (result) => {
-      if (chrome.runtime.lastError) {
-        return reject(new Error(`读取 storage 失败: ${chrome.runtime.lastError.message}`));
-      }
+    const result = await chrome.storage.local.get("scripts");
 
-      const scripts = Array.isArray(result.scripts) ? result.scripts : [];
+    if (chrome.runtime.lastError) {
+      return reject(
+        new Error(`读取 storage 失败: ${chrome.runtime.lastError.message}`),
+      );
+    }
+    const scripts = Array.isArray(result.scripts) ? result.scripts : [];
 
-      // 查找是否存在该脚本
-      const index = scripts.findIndex((script: any) => script.id === scriptId);
-      if (index !== -1) {
-        // 更新已有脚本
-        scripts[index] = scriptData;
-      } else {
-        return reject(new Error(`未找到 ID 为 ${scriptId} 的脚本`));
-      }
+    // 查找是否存在该脚本
+    const index = scripts.findIndex((script: any) => script.id === scriptId);
+    if (index !== -1) {
+      // 更新已有脚本
+      scripts[index] = scriptData;
+    } else {
+      return reject(new Error(`未找到 ID 为 ${scriptId} 的脚本`));
+    }
 
-      // 写回 storage
-      chrome.storage.local.set({ scripts }, () => {
-        if (chrome.runtime.lastError) {
-          return reject(new Error(`写入 storage 失败: ${chrome.runtime.lastError.message}`));
-        }
-        resolve();
-      });
-    });
+    await chrome.storage.local.set({ scripts });
+    resolve();
   });
 }
 
@@ -97,13 +90,21 @@ export function deleteScript(scriptId: number): Promise<void> {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get("scripts", (result) => {
       if (chrome.runtime.lastError) {
-        return reject(new Error(`读取 storage 失败: ${chrome.runtime.lastError.message}`));
+        return reject(
+          new Error(`读取 storage 失败: ${chrome.runtime.lastError.message}`),
+        );
       }
       if (Array.isArray(result.scripts)) {
-        const scripts = result.scripts.filter((script: any) => script.id !== scriptId);
+        const scripts = result.scripts.filter(
+          (script: any) => script.id !== scriptId,
+        );
         chrome.storage.local.set({ scripts }, () => {
           if (chrome.runtime.lastError) {
-            return reject(new Error(`写入 storage 失败: ${chrome.runtime.lastError.message}`));
+            return reject(
+              new Error(
+                `写入 storage 失败: ${chrome.runtime.lastError.message}`,
+              ),
+            );
           }
           resolve();
         });

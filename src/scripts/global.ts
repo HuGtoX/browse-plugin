@@ -1,37 +1,47 @@
 import jquery from "jquery";
 import { addStyle } from "../utils";
+
 (function () {
   "use strict";
   window.$ = jquery;
   window.GM_addStyle = addStyle;
 
-  $(window).on("load", function () {
-    console.log("jquery", jquery);
-  });
+  $(window).on("load", function () {});
 
   // 监听消息
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("-- [ message ] --", message);
 
     if (message.action === "injectScript") {
-      const iframe = document.createElement("iframe");
-      iframe.style.display = "none";
-      iframe.src = chrome.runtime.getURL("../sandbox.html");
-      document.body.appendChild(iframe);
+      const sandboxFrame = document.createElement("iframe");
+      sandboxFrame.src = chrome.runtime.getURL("../sandbox.html");
+      sandboxFrame.style.display = "none"; // 隐藏 iframe
+      document.body.appendChild(sandboxFrame);
 
-      console.log('-- [ iframe ] --', iframe);
-      console.log('-- [ iframe?.contentWindow? ] --', iframe?.contentWindow);
-      
-      // 向沙盒发送消息（包含代码和回调标识）
-      iframe?.contentWindow?.postMessage(
-        { code: message.code, callbackKey: "calculateSum" },
-        "*", // 建议替换为具体来源，如沙盒页面的URL
-      );
+      // 等待 iframe 加载完成
+      sandboxFrame.onload = () => {
+        // 向沙盒发送代码执行请求
+        sandboxFrame?.contentWindow?.postMessage(
+          {
+            type: "executeCode",
+            code: message.code,
+          },
+          "*",
+        );
+      };
 
       // 监听沙盒返回的结果
       window.addEventListener("message", (event) => {
-        if (event.data.callbackKey === "calculateSum") {
-          console.log("执行结果:", event.data.result); // 输出: 30
+        if (event.source === sandboxFrame.contentWindow) {
+          switch (event.data.type) {
+            case "GM_addStyle":
+              window.GM_addStyle(event.data.result);
+              break;
+            case "jquery":
+              console.log("-- [ jquery ] --", event);
+              window.$(event.data.result);
+              break;
+          }
         }
       });
     }

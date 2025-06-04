@@ -1,27 +1,58 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <script>
-      eval('console.log("sandbox")');
-      // 监听主程序传递的消息
-      window.addEventListener("message", (event) => {
-        console.log("-- [ event ] --", event);
-        if (event.source !== window.parent) return; // 确保消息来自父窗口
+<script>
+  var sourceTarget = null;
 
-        const { code, callbackKey } = event.data;
-        let result;
+  function $(str){
+    console.log('-- [ str ] --', str);
+    try {
+      event.source.postMessage(
+        {
+          type: "jquery",
+          result: str,
+        },
+        event.origin,
+      );
+    } catch (e) {
+      console.log("Error: env: adding style " + e);
+    }
+  }
 
-        try {
-          // 在沙盒中执行字符串代码（允许eval）
-          result = eval(code); // 危险操作仅限沙盒内执行！
-        } catch (error) {
-          result = `执行错误：${error.message}`;
-        }
+  function GM_addStyle(css) {
+    try {
+      event.source.postMessage(
+        {
+          type: "GM_addStyle",
+          result: css,
+        },
+        event.origin,
+      );
+    } catch (e) {
+      console.log("Error: env: adding style " + e);
+    }
+  }
 
-        // 返回结果给主程序
-        window.parent.postMessage({ callbackKey, result }, event.origin);
-      });
-    </script>
-  </head>
-  <body></body>
-</html>
+  // 监听来自内容脚本的消息
+  window.addEventListener("message", (event) => {
+    if (event.data.type === "executeCode") {
+      sourceTarget = event.source;
+      const { code } = event.data;
+      let result;
+
+      try {
+        // 在沙盒环境中执行代码（允许 eval）
+        result = eval(code);
+      } catch (error) {
+        result = `错误: ${error.message}`;
+      }
+
+      // 将结果返回给内容脚本
+        // event.source.postMessage(
+        //   {
+        //     type: "codeResult",
+        //     result,
+        //   },
+        //   event.origin,
+        // );
+    }
+  });
+</script>

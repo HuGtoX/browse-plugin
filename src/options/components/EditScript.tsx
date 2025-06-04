@@ -7,18 +7,18 @@ import { updateScript } from "../utils";
 interface EditScriptProps {
   scriptId: number;
   scriptData: any;
+  reload: () => void;
 }
 
 export default function EditScript(props: EditScriptProps) {
   const { scriptId, scriptData } = props;
   const [showModal, setShowModal] = useState(false);
-  const [scriptContent, setScriptContent] = useState(
-    scriptData
-  );
+  const [scriptContent, setScriptContent] = useState(scriptData);
 
-  const handleUpdate = () => {
-    updateScript(scriptId, scriptContent);
+  const handleUpdate = async () => {
+    await updateScript(scriptId, scriptContent);
     message.success("保存成功！");
+      props.reload?.();
     setShowModal(false);
   };
 
@@ -35,6 +35,7 @@ export default function EditScript(props: EditScriptProps) {
         title="添加脚本"
         isOpen={showModal}
         onCancel={() => setShowModal(false)}
+        confirmText="保存"
         onConfirm={handleUpdate}
       >
         <div className="p-6">

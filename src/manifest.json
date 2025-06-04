@@ -25,7 +25,8 @@
   "sandbox": {
     "pages": ["sandbox.html"], // 沙盒页面路径
     "scripts": true,           // 允许沙盒内运行脚本（包括eval）
-    "allow-modals": true       // 根据需要添加其他沙盒权限
+    "allow-modals": true,       // 根据需要添加其他沙盒权限
+    "allow-same-origin": true
   },
   // 需要直接注入页面的JS
   "content_scripts": [
@@ -38,6 +39,12 @@
       "matches": ["<all_urls>"],
       "js": ["scripts/scrollTop.js", "scripts/removeAds.js"],
       "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sandbox.html","./scripts/global.js"],
+      "matches": ["<all_urls>"]
     }
   ],
   "host_permissions": ["http://*/*", "https://*/*"],

@@ -3,13 +3,14 @@ import Modal from "../../components/Modal";
 import { saveScript } from "../utils";
 import message from "../../components/Message";
 
-export default function AddScripts() {
+export default function AddScripts(props: any) {
   const [showAddScriptModal, setShowAddScriptModal] = useState(false);
   const [newScriptName, setNewScriptName] = useState("");
 
-  const handleSave = () => {
-    saveScript(newScriptName);
+  const handleSave = async () => {
+    await saveScript(newScriptName);
     message.success("保存成功！");
+    props.reload?.();
     setShowAddScriptModal(false);
   };
 

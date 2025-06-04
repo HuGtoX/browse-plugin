@@ -19,16 +19,11 @@ export default function Scripts() {
 
   const getScriptList = async () => {
     const data = await getScripts();
-    console.log("-- [ data ] --", data);
     setScripts(data);
   };
 
   const updateScriptHandle = async (script: ScriptConfig) => {
-    const newScript = {
-      ...script,
-      enabled: !script.enabled,
-    };
-    await updateScript(script.id, newScript);
+    await updateScript(script.id, script.code,!script.enabled);
     getScriptList();
   };
 
@@ -45,7 +40,7 @@ export default function Scripts() {
         title="脚本管理"
         label="管理您的自定义脚本"
       >
-        <AddScripts />
+        <AddScripts reload={getScriptList} />
       </MainHeader>
 
       {/* Script List */}
@@ -69,7 +64,7 @@ export default function Scripts() {
                 />
               </div>
 
-              <EditScript scriptData={script.code} scriptId={script.id} />
+              <EditScript reload={getScriptList} scriptData={script.code} scriptId={script.id} />
 
               <Popconfirm
                 title="确定要删除吗？"
